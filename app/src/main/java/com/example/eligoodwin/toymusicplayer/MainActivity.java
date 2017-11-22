@@ -1,5 +1,7 @@
 package com.example.eligoodwin.toymusicplayer;
 
+import android.content.Intent;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +10,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String KEY_SONG = "song";
     private Button playMusic;
     private final String TAG = MainActivity.class.getSimpleName();
     @Override
@@ -15,37 +18,21 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         playMusic =(Button)findViewById(R.id.playMusic);
         playMusic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "Downloading the song", Toast.LENGTH_SHORT).show();
 
-                Runnable runnable = new Runnable() {
-                    @Override
-                    public void run() {
-                        downloadSong();
-                    }
-                };
-
-                Thread thread = new Thread(runnable);
-                thread.setName("Download Thread");
-                thread.start();
+                //send messages to handler for processing
+                for(String song : Playlist.songs) {
+                    Intent intent = new Intent(MainActivity.this, DownloadService.class);
+                    intent.putExtra(KEY_SONG, song);
+                    startService(intent);
+                }
             }
         });
-
-    }
-
-    private void downloadSong() {
-        long endTime = System.currentTimeMillis() + 10*1000;
-        while (System.currentTimeMillis() < endTime) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        Log.d(TAG, "Download complete");
 
     }
 }
